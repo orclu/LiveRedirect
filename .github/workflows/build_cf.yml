@@ -1,15 +1,13 @@
 name: build-cf-worker
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
-    paths:
-      - '**.go'
   pull_request:
     branches: [ "main" ]
-    paths:
-      - '**.go'
-
+  schedule:
+    - cron: "* 4 * * *"
 jobs:
   ci:
     strategy:
