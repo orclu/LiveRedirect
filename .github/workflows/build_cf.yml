@@ -38,10 +38,10 @@ jobs:
         shell: bash
         run: |
           cd ./Golang
-          tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
+          GOOS=js GOARCH=wasm go build -o ./build/app.wasm
       - name: deploy wasm
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          preCommands: cd ./Golang
-          command: deploy
+          preCommands: cd ./Golang/build
+          command: pages deploy ./ --project-name=iptv
