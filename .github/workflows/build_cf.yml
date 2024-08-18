@@ -1,4 +1,4 @@
-name: IPTV-Go
+name: build-cf-worker
 
 on:
   push:
