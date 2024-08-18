@@ -1,0 +1,49 @@
+name: IPTV-Go
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '**.go'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**.go'
+
+jobs:
+  ci:
+    strategy:
+      matrix:
+        go-version: [ 1.21.3 ]
+        tinygo: [ 0.30.0 ]
+        os: [ ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: youshandefeiyang/LiveRedirect
+
+      - name: Setup Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - uses: acifani/setup-tinygo@v2
+        with:
+          tinygo-version: ${{ matrix.tinygo }}
+      - name: gen worker
+        shell: bash
+        run: |
+          cd ./Golang
+          go run github.com/syumai/workers/cmd/workers-assets-gen@v0.23.1
+      - name: build wasm
+        shell: bash
+        run: |
+          cd ./Golang
+          tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
+      - name: deploy wasm
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          preCommands: cd ./Golang
+          command: deploy
